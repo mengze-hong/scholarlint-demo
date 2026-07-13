@@ -1,0 +1,27 @@
+# Self-contained deployment compose for the public demo (Kingsoft Cloud).
+# Run WITHOUT the base file so its 127.0.0.1:8000 mapping is not merged in
+# (compose appends `ports` across files, which caused an 8000 bind clash):
+#
+#   docker compose -f docker-compose.deploy.yml up -d --build
+#
+# BYOK: the server needs NO LLM key — each user brings their own via the
+# in-app "AI Settings" dialog. Leave LLM_* blank in .env.
+
+services:
+  integrityguard:
+    build: .
+    env_file:
+      - .env
+    environment:
+      - PYTHONPATH=/app
+    ports:
+      - "8088:8000"
+    volumes:
+      - ./data:/app/data
+      - ./uploads:/app/uploads
+    restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "5"
